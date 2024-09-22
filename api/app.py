@@ -3,7 +3,8 @@ from pipeline import (
     explorar_dados,
     treinar_modelo,
     testar_modelo,
-    prever_valores
+    prever_valores,
+    retreinar_modelo
 )
 
 from flask_swagger_ui import get_swaggerui_blueprint
@@ -49,6 +50,12 @@ def api_prever_valores():
     ativo = request.json.get('ativo', 'BTC-USD')  # Padrão BTC-USD se não fornecido
     previsoes = prever_valores(ativo, prevision_days=7)
     return jsonify({"message": f"Previsões para {ativo} geradas com sucesso.", "previsoes": previsoes.tolist()})
+
+@app.route('/retreinar_modelo', methods=['POST'])
+def api_retreinar_modelo():
+    ativo = request.json.get('ativo', 'BTC-USD')  # Padrão BTC-USD se não fornecido
+    retreinar_modelo(ativo)
+    return jsonify({"message": f"Modelo para {ativo} foi retreinado com sucesso."})
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Line } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
+import './CryptoDashboard.css'; // Importando o CSS
 
 // Registrar as escalas do Chart.js
 Chart.register(...registerables);
@@ -11,13 +12,20 @@ const CryptoDashboard = () => {
     const [ativoSelecionado, setAtivoSelecionado] = useState('BTC-USD');
     const [metricas, setMetricas] = useState(null);
     const [previsoes, setPrevisoes] = useState([]);
+    const [modeloExistente, setModeloExistente] = useState(false); // Novo estado
+    const [loading, setLoading] = useState(false); // Estado de carregamento
     const chartRef = useRef(null);
 
     useEffect(() => {
-        // Buscar as métricas do modelo ao selecionar um ativo
         const fetchMetricas = async () => {
-            const response = await axios.post(`http://localhost:5000/testar_modelo`, { ativo: ativoSelecionado });
-            setMetricas(response.data.resultados);
+            try {
+                const response = await axios.post(`http://localhost:5000/testar_modelo`, { ativo: ativoSelecionado });
+                setMetricas(response.data.resultados);
+                setModeloExistente(true); // Se o modelo existe
+            } catch (error) {
+                setModeloExistente(false); // Se não existe
+                setMetricas(null);
+            }
         };
         fetchMetricas();
     }, [ativoSelecionado]);
@@ -27,52 +35,114 @@ const CryptoDashboard = () => {
         setPrevisoes(response.data.previsoes);
     };
 
+    const handleTreinar = async () => {
+        setLoading(true); // Inicia o carregamento
+        const response = await axios.post(`http://localhost:5000/retreinar_modelo`, { ativo: ativoSelecionado });
+        setPrevisoes(response.data.previsoes);
+        setModeloExistente(true); // Após treinar, modelo existe
+        setLoading(false); // Finaliza o carregamento
+    };
+
+    const handleRetreinar = async () => {
+        setLoading(true); // Inicia o carregamento
+        await axios.post(`http://localhost:5000/retreinar_modelo`, { ativo: ativoSelecionado });
+        alert('Modelo retreinado com sucesso!');
+        await fetchMetricas(); // Atualiza as métricas após retreinar
+        setLoading(false); // Finaliza o carregamento
+    };
+
+    // Função para buscar métricas (movida para fora do useEffect para uso em handleRetreinar)
+    const fetchMetricas = async () => {
+        try {
+            const response = await axios.post(`http://localhost:5000/testar_modelo`, { ativo: ativoSelecionado });
+            setMetricas(response.data.resultados);
+            setModeloExistente(true); // Se o modelo existe
+        } catch (error) {
+            setModeloExistente(false); // Se não existe
+            setMetricas(null);
+        }
+    };
+
     return (
-        <div>
+        <div className="dashboard-container">
             <h1>Dashboard de Criptoativos</h1>
-            <select onChange={(e) => setAtivoSelecionado(e.target.value)}>
-                {ativos.map(ativo => (
-                    <option key={ativo} value={ativo}>{ativo}</option>
-                ))}
-            </select>
-            {metricas && <div>Métricas: {JSON.stringify(metricas)}</div>}
-            <button onClick={handlePrever}>Prever Valores para os Próximos 7 Dias</button>
+            <div className="controls">
+                <label htmlFor="ativo-select">Selecione um ativo:</label>
+                <select
+                    id="ativo-select"
+                    onChange={(e) => setAtivoSelecionado(e.target.value)}
+                >
+                    {ativos.map(ativo => (
+                        <option key={ativo} value={ativo}>{ativo}</option>
+                    ))}
+                </select>
+            </div>
+
+            {metricas && (
+                <div className="metricas">
+                    <h2>Métricas do Modelo</h2>
+                    <ul>
+                        <li><strong>Erro Médio Absoluto (MAE):</strong> {metricas[0]}</li>
+                        <li><strong>Erro Quadrático Médio (MSE):</strong> {metricas[1]}</li>
+                        <li><strong>Raiz do Erro Quadrático Médio (RMSE):</strong> {metricas[2]}</li>
+                    </ul>
+                </div>
+            )}
+
+            <div className="buttons">
+                {!modeloExistente ? (
+                    <button onClick={handleTreinar} disabled={loading}>
+                        {loading ? 'Treinando...' : 'Treinar o modelo'}
+                    </button>
+                ) : (
+                    <>
+                        <button onClick={handlePrever}>Prever Valores para os Próximos 7 Dias</button>
+                        <button onClick={handleRetreinar}>Retreinar Modelo com Dados Recentes</button>
+                    </>
+                )}
+            </div>
+
+            {loading && <p>Carregando... Por favor, aguarde.</p>} {/* Mensagem de carregamento */}
+
             {previsoes.length > 0 && (
-                <Line
-                    ref={chartRef}
-                    data={{
-                        labels: [...Array(previsoes.length).keys()].map(i => `Dia ${i + 1}`),
-                        datasets: [{
-                            label: 'Previsões',
-                            data: previsoes,
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        }]
-                    }}
-                    options={{
-                        scales: {
-                            x: {
-                                type: 'category', // Define a escala x como 'category'
-                                title: {
-                                    display: true,
-                                    text: 'Dias',
+                <div className="chart-container">
+                    <Line
+                        ref={chartRef}
+                        data={{
+                            labels: [...Array(previsoes.length).keys()].map(i => `Dia ${i + 1}`),
+                            datasets: [{
+                                label: 'Previsões',
+                                data: previsoes,
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            }]
+                        }}
+                        options={{
+                            responsive: true,
+                            maintainAspectRatio: false, // Manter gráfico responsivo
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Dias',
+                                    },
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'Valor',
+                                    },
                                 },
                             },
-                            y: {
-                                title: {
+                            plugins: {
+                                legend: {
                                     display: true,
-                                    text: 'Valor',
+                                    position: 'top',
                                 },
                             },
-                        },
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'top',
-                            },
-                        },
-                    }}
-                />
+                        }}
+                    />
+                </div>
             )}
         </div>
     );
