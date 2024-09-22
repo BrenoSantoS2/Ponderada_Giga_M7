@@ -7,8 +7,10 @@ from pipeline import (
 )
 
 from flask_swagger_ui import get_swaggerui_blueprint
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # Configurações do Swagger
 SWAGGER_URL = '/swagger'
