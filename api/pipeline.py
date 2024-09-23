@@ -49,7 +49,7 @@ def treinar_modelo(ativo, memory_days=60):
 
 def testar_modelo(ativo, memory_days=60):
     # Carregar modelo e dados
-    model = tf.keras.models.load_model(f'../models/{ativo}_model.h5')
+    model = tf.keras.models.load_model(f'./models/{ativo}_model.h5')
     df = pd.read_csv(f'./data/raw/{ativo}.csv')
 
     data = df.filter(['Close']).values
@@ -79,8 +79,8 @@ def testar_modelo(ativo, memory_days=60):
     return mae, mse, rmse
 
 def prever_valores(ativo, memory_days=60, prevision_days=7):
-    model = tf.keras.models.load_model(f'../models/{ativo}_model.h5')
-    df = pd.read_csv(f'../data/raw/{ativo}.csv')
+    model = tf.keras.models.load_model(f'./models/{ativo}_model.h5')
+    df = pd.read_csv(f'./data/raw/{ativo}.csv')
 
     data = df.filter(['Close']).values
     scaler = MinMaxScaler(feature_range=(0,1))
@@ -104,7 +104,7 @@ def retreinar_modelo(ativo, memory_days=60):
     df.to_csv(f'./data/raw/{ativo}.csv')
 
     # Carregar dados
-    df = pd.read_csv(f'../data/raw/{ativo}.csv')
+    df = pd.read_csv(f'./data/raw/{ativo}.csv')
     data = df.filter(['Close']).values
 
     # Escalar dados
