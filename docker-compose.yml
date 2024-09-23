@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   backend:
     build: ./api
@@ -9,7 +7,7 @@ services:
       - app-network
     volumes:
       - ./api:/app
-      - ./api/data:/app/data         # Mapeia a pasta 'data' para o container
+      - ./api/data:/app/data
       - ./api/models:/app/models 
     environment:
       - FLASK_ENV=development
@@ -18,7 +16,7 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "3000:80"
+      - "3000:3000"
     networks:
       - app-network
 
