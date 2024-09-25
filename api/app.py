@@ -61,5 +61,5 @@ def api_retreinar_modelo():
     return jsonify({"message": f"Modelo para {ativo} foi retreinado com sucesso."})
 
 if __name__ == '__main__':
-    app.run(debug=True, host="localhost", port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5000)
 
