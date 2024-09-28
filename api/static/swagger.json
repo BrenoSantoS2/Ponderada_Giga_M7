@@ -1,129 +1,293 @@
 {
-    "swagger": "2.0",
-    "info": {
-      "description": "API para gerenciamento de criptoativos.",
-      "version": "1.0.0",
-      "title": "API de Criptoativos"
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "API de Criptoativos",
+    "description": "API para explorar dados, treinar modelos, prever valores e avaliar compras de criptoativos."
+  },
+  "host": "localhost:5000",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Raiz da API",
+        "description": "Retorna uma mensagem de boas-vindas.",
+        "responses": {
+          "200": {
+            "description": "Mensagem de boas-vindas.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
     },
-    "host": "localhost:5000",
-    "basePath": "/",
-    "schemes": [
-      "http"
-    ],
-    "paths": {
-      "/explorar_dados": {
-        "get": {
-          "summary": "Explorar dados de um ativo",
-          "parameters": [
-            {
-              "name": "ativo",
-              "in": "query",
-              "description": "O ativo a ser explorado",
-              "required": false,
-              "type": "string",
-              "default": "BTC-USD"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Dados explorados com sucesso"
-            },
-            "500": {
-              "description": "Erro interno do servidor"
+    "/explorar_dados": {
+      "get": {
+        "summary": "Explorar dados de um ativo",
+        "description": "Coleta dados do ativo especificado.",
+        "parameters": [
+          {
+            "name": "ativo",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "default": "BTC-USD"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados coletados com sucesso.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
-      },
-      "/treinar_modelo": {
-        "post": {
-          "summary": "Treinar modelo para um ativo",
-          "parameters": [
-            {
-              "name": "ativo",
-              "in": "body",
-              "description": "Ativo para treinar o modelo",
-              "required": false,
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "ativo": {
-                    "type": "string",
-                    "default": "BTC-USD"
+      }
+    },
+    "/treinar_modelo": {
+      "post": {
+        "summary": "Treinar modelo",
+        "description": "Treina um modelo para o ativo especificado.",
+        "parameters": [
+          {
+            "name": "ativo",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ativo": {
+                  "type": "string",
+                  "default": "BTC-USD"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Modelo treinado com sucesso.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/testar_modelo": {
+      "post": {
+        "summary": "Testar modelo",
+        "description": "Testa o modelo para o ativo especificado.",
+        "parameters": [
+          {
+            "name": "ativo",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ativo": {
+                  "type": "string",
+                  "default": "BTC-USD"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Teste realizado com sucesso.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "resultados": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
                   }
                 }
               }
             }
-          ],
-          "responses": {
-            "200": {
-              "description": "Modelo treinado com sucesso"
-            },
-            "500": {
-              "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/prever_valores": {
+      "post": {
+        "summary": "Prever valores",
+        "description": "Gera previsões para o ativo especificado.",
+        "parameters": [
+          {
+            "name": "ativo",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ativo": {
+                  "type": "string",
+                  "default": "BTC-USD"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Previsões geradas com sucesso.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "previsoes": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                },
+                "tendencia": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
-      },
-      "/testar_modelo": {
-        "post": {
-          "summary": "Testar modelo para um ativo",
-          "parameters": [
-            {
-              "name": "ativo",
-              "in": "body",
-              "description": "Ativo para testar o modelo",
-              "required": false,
-              "schema": {
+      }
+    },
+    "/retreinar_modelo": {
+      "post": {
+        "summary": "Retreinar modelo",
+        "description": "Retreina um modelo para o ativo especificado.",
+        "parameters": [
+          {
+            "name": "ativo",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ativo": {
+                  "type": "string",
+                  "default": "BTC-USD"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Modelo retreinado com sucesso.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/logs": {
+      "get": {
+        "summary": "Obter logs",
+        "description": "Retorna os logs de interação com a API.",
+        "responses": {
+          "200": {
+            "description": "Logs retornados com sucesso.",
+            "schema": {
+              "type": "array",
+              "items": {
                 "type": "object",
                 "properties": {
+                  "id": {
+                    "type": "integer"
+                  },
+                  "route": {
+                    "type": "string"
+                  },
                   "ativo": {
+                    "type": "string"
+                  },
+                  "timestamp": {
                     "type": "string",
-                    "default": "BTC-USD"
+                    "format": "date-time"
                   }
                 }
               }
             }
-          ],
-          "responses": {
-            "200": {
-              "description": "Teste realizado com sucesso"
-            },
-            "500": {
-              "description": "Erro interno do servidor"
-            }
           }
         }
-      },
-      "/prever_valores": {
-        "post": {
-          "summary": "Prever valores para um ativo",
-          "parameters": [
-            {
-              "name": "ativo",
-              "in": "body",
-              "description": "Ativo para prever os valores",
-              "required": false,
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "ativo": {
-                    "type": "string",
-                    "default": "BTC-USD"
-                  }
+      }
+    },
+    "/avaliar_compra": {
+      "post": {
+        "summary": "Avaliar compra",
+        "description": "Avalia se é um bom momento para comprar ou vender o ativo especificado.",
+        "parameters": [
+          {
+            "name": "ativo",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ativo": {
+                  "type": "string",
+                  "default": "BTC-USD"
                 }
               }
             }
-          ],
-          "responses": {
-            "200": {
-              "description": "Previsões geradas com sucesso"
-            },
-            "500": {
-              "description": "Erro interno do servidor"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Avaliação realizada com sucesso.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "previsoes": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                },
+                "tendencia": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
       }
     }
   }
-  
+}
