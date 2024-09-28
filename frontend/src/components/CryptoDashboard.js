@@ -14,7 +14,7 @@ const CryptoDashboard = () => {
     const [previsoes, setPrevisoes] = useState([]);
     const [modeloExistente, setModeloExistente] = useState(false); // Novo estado
     const [loading, setLoading] = useState(false); // Estado de carregamento
-    /* const [recomendacao, setRecomendacao] = useState(''); */
+    const [recomendacao, setRecomendacao] = useState(''); // Estado para a recomendação de compra/venda
 
     const chartRef = useRef(null);
 
@@ -34,7 +34,21 @@ const CryptoDashboard = () => {
 
     const handlePrever = async () => {
         const response = await axios.post(`http://localhost:5000/prever_valores`, { ativo: ativoSelecionado });
-        setPrevisoes(response.data.previsoes);
+        const previsoesObtidas = response.data.previsoes;
+        setPrevisoes(previsoesObtidas);
+
+        // Aplicando a recomendação com base nas previsões
+        if (previsoesObtidas.length > 0) {
+            const precoInicial = previsoesObtidas[0];
+            const precoFinal = previsoesObtidas[previsoesObtidas.length - 1];
+            if (precoFinal > precoInicial) {
+                setRecomendacao('Recomendação: Comprar');
+            } else {
+                setRecomendacao('Recomendação: Vender');
+            }
+        } else {
+            setRecomendacao('');
+        }
     };
 
     const handleTreinar = async () => {
@@ -68,16 +82,6 @@ const CryptoDashboard = () => {
         }
     };
 
-    /* const recomendation = async () => {
-        try {
-            const response = await axios.post(`http://localhost:5000/avaliar_compra`, { ativo: ativoSelecionado });
-            setRecomendacao(response.data.message); // Armazenar a recomendação no estado
-        } catch (error) {
-            console.error("Erro ao pegar recomendação:", error);
-        }
-    }; */
-    
-
     return (
         <div className="dashboard-container">
             <h1>Dashboard de Criptoativos</h1>
@@ -87,7 +91,6 @@ const CryptoDashboard = () => {
                     id="ativo-select"
                     onChange={(e) => setAtivoSelecionado(e.target.value)}
                 >
-                    
                     {ativos.map(ativo => (
                         <option key={ativo} value={ativo}>{ativo}</option>
                     ))}
@@ -120,46 +123,52 @@ const CryptoDashboard = () => {
 
             {loading && <p>Carregando... Por favor, aguarde.</p>} {/* Mensagem de carregamento */}
 
-            {previsoes.length > 0 && (
-                
-                <div className="chart-container">
-                    <Line
-                        ref={chartRef}
-                        data={{
-                            labels: [...Array(previsoes.length).keys()].map(i => `Dia ${i + 1}`),
-                            datasets: [{
-                                label: 'Previsões',
-                                data: previsoes,
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            }]
-                        }}
-                        options={{
-                            responsive: true,
-                            maintainAspectRatio: false, // Manter gráfico responsivo
-                            scales: {
-                                x: {
-                                    title: {
-                                        display: true,
-                                        text: 'Dias',
-                                    },
-                                },
-                                y: {
-                                    title: {
-                                        display: true,
-                                        text: 'Valor',
-                                    },
-                                },
-                            },
-                            plugins: {
-                                legend: {
-                                    display: true,
-                                    position: 'top',
-                                },
-                            },
-                        }}
-                    />
+            {recomendacao && (
+                <div className={`recomendacao-box`}>
+                    <h3>Recomendação: {recomendacao.toUpperCase()}</h3>
                 </div>
+            )}
+            {previsoes && previsoes.length > 0 && (
+                <>
+                    <div className="chart-container">
+                        <Line
+                            ref={chartRef}
+                            data={{
+                                labels: [...Array(previsoes.length).keys()].map(i => `Dia ${i + 1}`),
+                                datasets: [{
+                                    label: 'Previsões',
+                                    data: previsoes,
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                }]
+                            }}
+                            options={{
+                                responsive: true,
+                                maintainAspectRatio: false, // Manter gráfico responsivo
+                                scales: {
+                                    x: {
+                                        title: {
+                                            display: true,
+                                            text: 'Dias',
+                                        },
+                                    },
+                                    y: {
+                                        title: {
+                                            display: true,
+                                            text: 'Valor',
+                                        },
+                                    },
+                                },
+                                plugins: {
+                                    legend: {
+                                        display: true,
+                                        position: 'top',
+                                    },
+                                },
+                            }}
+                        />
+                    </div>
+                </>
             )}
         </div>
     );

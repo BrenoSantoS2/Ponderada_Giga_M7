@@ -7,9 +7,9 @@ from pipeline import (
     prever_valores,
     retreinar_modelo
 )
-
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask_cors import CORS
+import numpy as np  # Certifique-se de importar o NumPy
 
 app = Flask(__name__)
 CORS(app)
@@ -73,9 +73,17 @@ def api_testar_modelo():
 @app.route('/prever_valores', methods=['POST'])
 def api_prever_valores():
     ativo = request.json.get('ativo', 'BTC-USD')
-    previsoes = prever_valores(ativo, prevision_days=7)
+    previsoes, tendencia = prever_valores(ativo, prevision_days=7)
+    
+    # Corrigindo a serialização do array para JSON
+    previsoes_list = previsoes.tolist() if isinstance(previsoes, np.ndarray) else previsoes
+
     log_interaction('prever_valores', ativo)
-    return jsonify({"message": f"Previsões para {ativo} geradas com sucesso.", "previsoes": list(previsoes)})
+    return jsonify({
+        "message": f"Previsões para {ativo} geradas com sucesso.",
+        "previsoes": previsoes_list,
+        "tendencia": tendencia
+    })
 
 @app.route('/retreinar_modelo', methods=['POST'])
 def api_retreinar_modelo():
@@ -95,17 +103,17 @@ def api_avaliar_compra():
     ativo = request.json.get('ativo', 'BTC-USD')
     previsoes, tendencia = prever_valores(ativo, prevision_days=7)
     
-    if tendencia == "alta":
-        recomendacao = "compra"
-    else:
-        recomendacao = "venda"
+    recomendacao = "compra" if tendencia == "alta" else "venda"
 
     # Log da interação
     log_interaction('avaliar_compra', ativo)
 
+    # Convertendo previsões em lista para JSON
+    previsoes_list = previsoes.tolist() if isinstance(previsoes, np.ndarray) else previsoes
+
     return jsonify({
         "message": f"Recomendação para {ativo}: {recomendacao}.",
-        "previsoes": previsoes.tolist(),
+        "previsoes": previsoes_list,
         "tendencia": tendencia
     })
 
