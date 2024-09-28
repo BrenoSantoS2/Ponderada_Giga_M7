@@ -97,7 +97,12 @@ def prever_valores(ativo, memory_days=60, prevision_days=7):
         predictions.append(next_price[0][0])
         last_days = np.append(last_days[:, 1:, :], next_price.reshape(1, 1, 1), axis=1)
 
-    return np.array(predictions)
+    predictions = np.array(predictions)
+
+    # Determinar tendência de alta ou baixa
+    tendencia = "alta" if predictions[-1] > predictions[0] else "baixa"
+    
+    return predictions, tendencia
 
 def retreinar_modelo(ativo, memory_days=60):
     df = yf.download(ativo, start="2014-01-01", end="2024-01-01")

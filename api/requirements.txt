@@ -1,6 +1,9 @@
 Flask
 flask-cors
 flask_swagger_ui
+flask_sqlalchemy
+psycopg2
+
 numpy
 pandas
 scikit-learn

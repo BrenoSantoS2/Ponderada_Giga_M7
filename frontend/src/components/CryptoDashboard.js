@@ -14,12 +14,14 @@ const CryptoDashboard = () => {
     const [previsoes, setPrevisoes] = useState([]);
     const [modeloExistente, setModeloExistente] = useState(false); // Novo estado
     const [loading, setLoading] = useState(false); // Estado de carregamento
+    /* const [recomendacao, setRecomendacao] = useState(''); */
+
     const chartRef = useRef(null);
 
     useEffect(() => {
         const fetchMetricas = async () => {
             try {
-                const response = await axios.post(`http://backend:5000/testar_modelo`, { ativo: ativoSelecionado });
+                const response = await axios.post(`http://localhost:5000/testar_modelo`, { ativo: ativoSelecionado });
                 setMetricas(response.data.resultados);
                 setModeloExistente(true); // Se o modelo existe
             } catch (error) {
@@ -31,7 +33,7 @@ const CryptoDashboard = () => {
     }, [ativoSelecionado]);
 
     const handlePrever = async () => {
-        const response = await axios.post(`http://backend:5000/prever_valores`, { ativo: ativoSelecionado });
+        const response = await axios.post(`http://localhost:5000/prever_valores`, { ativo: ativoSelecionado });
         setPrevisoes(response.data.previsoes);
     };
 
@@ -39,7 +41,7 @@ const CryptoDashboard = () => {
         console.log('Treinando o modelo...');
         setLoading(true); // Inicia o carregamento
         console.log('Ativo selecionado:', ativoSelecionado);
-        const response = await axios.post(`http://backend:5000/retreinar_modelo`, { ativo: ativoSelecionado });
+        const response = await axios.post(`http://localhost:5000/retreinar_modelo`, { ativo: ativoSelecionado });
         console.log('Resultado do back...');
         setPrevisoes(response.data.previsoes);
         setModeloExistente(true); // Após treinar, modelo existe
@@ -48,7 +50,7 @@ const CryptoDashboard = () => {
 
     const handleRetreinar = async () => {
         setLoading(true); // Inicia o carregamento
-        await axios.post(`http://backend:5000/retreinar_modelo`, { ativo: ativoSelecionado });
+        await axios.post(`http://localhost:5000/retreinar_modelo`, { ativo: ativoSelecionado });
         alert('Modelo retreinado com sucesso!');
         await fetchMetricas(); // Atualiza as métricas após retreinar
         setLoading(false); // Finaliza o carregamento
@@ -57,7 +59,7 @@ const CryptoDashboard = () => {
     // Função para buscar métricas (movida para fora do useEffect para uso em handleRetreinar)
     const fetchMetricas = async () => {
         try {
-            const response = await axios.post(`http://backend:5000/testar_modelo`, { ativo: ativoSelecionado });
+            const response = await axios.post(`http://localhost:5000/testar_modelo`, { ativo: ativoSelecionado });
             setMetricas(response.data.resultados);
             setModeloExistente(true); // Se o modelo existe
         } catch (error) {
@@ -65,6 +67,16 @@ const CryptoDashboard = () => {
             setMetricas(null);
         }
     };
+
+    /* const recomendation = async () => {
+        try {
+            const response = await axios.post(`http://localhost:5000/avaliar_compra`, { ativo: ativoSelecionado });
+            setRecomendacao(response.data.message); // Armazenar a recomendação no estado
+        } catch (error) {
+            console.error("Erro ao pegar recomendação:", error);
+        }
+    }; */
+    
 
     return (
         <div className="dashboard-container">
@@ -109,6 +121,7 @@ const CryptoDashboard = () => {
             {loading && <p>Carregando... Por favor, aguarde.</p>} {/* Mensagem de carregamento */}
 
             {previsoes.length > 0 && (
+                
                 <div className="chart-container">
                     <Line
                         ref={chartRef}
