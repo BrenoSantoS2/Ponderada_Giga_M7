@@ -89,7 +89,7 @@ Primeiramente após colher os dados dos criptoativos e baixar da biblioteca Yfin
 
    Calculando e plotando a média móvel, foi muito interessante para entender se existe algum padrão que fica mais evidente fazendoe esse processo de normalização dos dados e é interessante ver que após uma queda tem uma grande subida e depois varia bastante para ter outra queda e o processo se repete, o que é bem interessante.
 
-   ![Média Móvel](./imagensReadme/mediamovel.png)
+   ![Média Móvel](./imagensReadme/mediaMovel.png)
 
 ### Treinando o Modelo
 
